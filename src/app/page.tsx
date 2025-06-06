@@ -9,8 +9,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Check, Loader2, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import type { TooltipProps } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import type { TooltipProps } from 'recharts';
 
 const ROWS_OPTIONS = [10, 20, 30, 40, 50];
 
@@ -40,26 +40,35 @@ function getRangeLabel(days: number) {
   return "";
 }
 
+type Topic = string | { name: string };
+
 type ToolRow = {
   id: string;
   name: string;
   tagline: string;
-  topics: any[];
+  topics: Topic[];
   thumbnail_url: string;
   website: string;
   created_at: string;
   score: number | null;
 };
 
+type ChartTooltipPayload = {
+  value: number;
+  name: string;
+  payload: { date: string; count: number };
+};
+
 function CustomTooltip({ active, payload, label }: TooltipProps<any, any>) {
   if (!active || !payload || !payload.length) return null;
+  const value = (payload[0] && typeof payload[0].value === 'number') ? payload[0].value : '';
   return (
     <div className="rounded-lg bg-white shadow-lg px-4 py-2 text-sm border border-border">
       <div className="font-semibold mb-1 text-foreground">{formatChartDate(label as string)}</div>
       <div className="flex items-center gap-2">
         <span className="inline-block w-2 h-2 rounded-full bg-black mr-2" />
         <span className="text-muted-foreground">Tools Published:</span>
-        <span className="font-bold text-foreground ml-1">{payload[0].value}</span>
+        <span className="font-bold text-foreground ml-1">{value}</span>
       </div>
     </div>
   );
@@ -217,7 +226,7 @@ export default function Home() {
               <TableHead className="px-3 py-2" />
               <TableHead className="text-sm font-bold px-3 py-2">Name</TableHead>
               <TableHead className="text-sm font-bold px-3 py-2">Topics</TableHead>
-              <TableHead className="text-sm font-bold px-3 py-2">Aleksi's Score</TableHead>
+              <TableHead className="text-sm font-bold px-3 py-2">Aleksi&apos;s Score</TableHead>
               <TableHead className="text-sm font-bold px-3 py-2">Visit Website</TableHead>
               <TableHead className="text-sm font-bold px-3 py-2">Date Added</TableHead>
             </TableRow>
@@ -255,7 +264,7 @@ export default function Home() {
                   <TableCell className="px-3 py-2">
                     <div className="flex flex-wrap gap-1">
                       {Array.isArray(tool.topics)
-                        ? tool.topics.map((topic: any, i: number) => (
+                        ? tool.topics.map((topic: Topic, i: number) => (
                             <Badge key={i} variant="secondary" className="bg-muted text-muted-foreground text-[11px] font-normal rounded-full px-2 py-0.5">
                               {typeof topic === 'string' ? topic : topic.name}
                             </Badge>
