@@ -53,12 +53,6 @@ type ToolRow = {
   score: number | null;
 };
 
-type ChartTooltipPayload = {
-  value: number;
-  name: string;
-  payload: { date: string; count: number };
-};
-
 function CustomTooltip({ active, payload, label }: TooltipProps<any, any>) {
   if (!active || !payload || !payload.length) return null;
   const value = (payload[0] && typeof payload[0].value === 'number') ? payload[0].value : '';
