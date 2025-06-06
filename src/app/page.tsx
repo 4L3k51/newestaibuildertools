@@ -53,7 +53,7 @@ type ToolRow = {
   score: number | null;
 };
 
-function CustomTooltip({ active, payload, label }: TooltipProps<any, any>) {
+function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload || !payload.length) return null;
   const value = (payload[0] && typeof payload[0].value === 'number') ? payload[0].value : '';
   return (
@@ -87,15 +87,19 @@ export default function Home() {
       try {
         const res = await fetch('/api/similar-tools');
         if (!res.ok) throw new Error('Failed to fetch tools');
-        const data = await res.json();
+        const data: ToolRow[] = await res.json();
         // Pagination logic (client-side)
         const from = (page - 1) * rowsPerPage;
         const to = from + rowsPerPage;
         const paginated = data.slice(from, to);
         setTools(paginated);
         setTotal(data.length);
-      } catch (err: any) {
-        setTableError(err.message || 'Error loading tools');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setTableError(err.message || 'Error loading tools');
+        } else {
+          setTableError('Error loading tools');
+        }
         setTools([]);
         setTotal(0);
       } finally {
@@ -112,7 +116,7 @@ export default function Home() {
       try {
         const res = await fetch('/api/similar-tools');
         if (!res.ok) throw new Error('Failed to fetch tools for chart');
-        const data = await res.json();
+        const data: ToolRow[] = await res.json();
         // Group by date for chart
         const since = new Date();
         since.setDate(since.getDate() - chartRange);
@@ -127,8 +131,12 @@ export default function Home() {
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([date, count]) => ({ date, count }));
         setChartData(chartArr);
-      } catch (err: any) {
-        setChartError(err.message || 'Error loading chart data');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setChartError(err.message || 'Error loading chart data');
+        } else {
+          setChartError('Error loading chart data');
+        }
         setChartData([]);
       } finally {
         setChartLoading(false);
